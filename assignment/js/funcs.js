@@ -1,13 +1,9 @@
-
 /** Find the N closest world bank projects */
-function nClosest(point, n) {
-  // The SQL in english:
-  // SELECT (all data) FROM (the table, world_bank_projects)
-  // ORDER BY (distance of these geoms from the provided point)
-  // LIMIT (to n cases)
-  var sql = 'SELECT * FROM world_bank_projects ORDER BY the_geom <-> ST_Point(' + point.lng + ',' + point.lat + ') LIMIT ' + n;
+function nClosest(point,n) {
 
-  $.ajax('https://moradology.cartodb.com/api/v2/sql/?q=' + sql).done(function(results) {
+  var sql = 'SELECT * FROM farmers_markets_copy ORDER BY the_geom <-> ST_SetSRID(ST_Point(' + point.lng + ',' + point.lat + '), 4326) LIMIT ' + n;
+  console.log('https://viola96.cartodb.com/api/v2/sql/?q=' + sql);
+  $.ajax('https://viola96.cartodb.com/api/v2/sql/?q=' + sql).done(function(results) {
     //console.log(n +' closest:', results);
     addRecords(results);
   });
@@ -19,11 +15,10 @@ function pointsWithin(rect) {
   var sw = rect[0];
   var ne = rect[2];
 
-  var sql = 'SELECT * FROM world_bank_projects WHERE the_geom @ ST_MakeEnvelope(' +
+  var sql = 'SELECT * FROM farmers_markets_copy WHERE the_geom @ ST_MakeEnvelope(' +
     sw.lng + ','+ sw.lat + ',' + ne.lng + ',' + ne.lat + ', 4326)';
-console.log('https://moradology.cartodb.com/api/v2/sql/?q=' + sql);
-  $.ajax('https://moradology.cartodb.com/api/v2/sql/?q=' + sql).done(function(results) {
-    console.log(results);
+  console.log('https://viola96.cartodb.com/api/v2/sql/?q=' + sql);
+  $.ajax('https://viola96.cartodb.com/api/v2/sql/?q=' + sql).done(function(results) {
     //console.log('pointsWithin:', results);
     addRecords(results);
   });
@@ -39,20 +34,20 @@ console.log('https://moradology.cartodb.com/api/v2/sql/?q=' + sql);
  */
 function addOneRecord(rec) {
   var title = $('<p></p>')
-    .text('Title: ' + rec.project_title);
+    .text('Farm Market nearby Neighorhood: ' + rec.neighborhood);
 
   var location = $('<p></p>')
-    .text('Location: ' + rec.geoname + ', ' + rec.country);
+    .text('Location: ' + rec.address);
 
-  var lending_instrument = $('<p></p>')
-    .text('Instrument: ' + rec.lending_instrument);
+  var time = $('<p></p>')
+    .text('Open Date: ' + rec.months + ', '+rec.day+', '+rec.time);
 
 
   var recordElement = $('<li></li>')
     .addClass('list-group-item')
     .append(title)
     .append(location)
-    .append(lending_instrument);
+    .append(time);
 
   $('#project-list').append(recordElement);
 }
